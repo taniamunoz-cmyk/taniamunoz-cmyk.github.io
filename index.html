@@ -654,7 +654,7 @@ async function generate() {
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" style="border-top-color:white;border-color:rgba(255,255,255,0.3);border-top-color:white;width:18px;height:18px;"></div> Generating...`;
   status.style.display = 'flex';
-  document.getElementById('status-text').textContent = 'Calling Claude API...';
+  document.getElementById('status-text').textContent = 'Generating letter...';
   out.style.display = 'none';
 
   try {
@@ -665,8 +665,18 @@ async function generate() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt() }] }],
-          generationConfig: { maxOutputTokens: 1200, temperature: 0.3 }
+          contents: [{
+            role: 'user',
+            parts: [{ text: buildPrompt() }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 1500,
+            temperature: 0.3,
+            candidateCount: 1
+          },
+          systemInstruction: {
+            parts: [{ text: 'You are a professional PE engineer drafting certification letters for PV installations in Florida. Output only the letter body, no preamble or commentary.' }]
+          }
         })
       }
     );
@@ -928,3 +938,4 @@ function showToast(msg, isError = false) {
 </script>
 </body>
 </html>
+
