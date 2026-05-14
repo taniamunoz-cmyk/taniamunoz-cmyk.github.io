@@ -658,17 +658,20 @@ async function generate() {
   out.style.display = 'none';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: buildPrompt() }]
-      })
-    });
+    const GEMINI_KEY = 'AIzaSyDrOGsdLzBUmblxD9ArYPS8b1N7pGm7aD4';
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildPrompt() }] }],
+          generationConfig: { maxOutputTokens: 1200, temperature: 0.3 }
+        })
+      }
+    );
     const data = await res.json();
-    const body = data.content?.map(c => c.text || '').join('') || 'Error generating letter.';
+    const body = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Error generating letter.';
 
     const client = gv('client').toUpperCase() || 'CLIENT NAME';
     const addr = gv('address').toUpperCase() || 'ADDRESS';
